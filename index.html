@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 13 Tuesday Practice Quiz</title>
+    <style>
+        /* --- Color Variables --- */
+        :root {
+            /* Default: Dark Theme */
+            --bg-color: #2d343e;
+            /* Dark background */
+            --container-bg: #3c424f;
+            /* Slightly lighter container */
+            --text-color: #e8e6e3;
+            /* Light text */
+            --question-text-color: #8ab4f8;
+            /* Light blue for questions */
+            --lo-text-color: #b0c4de;
+            /* Lighter blue for learning objective */
+            --border-color: #555;
+            /* Darker borders */
+            --separator-color: #4a4f5a;
+            --label-bg: #454c5a;
+            --label-border: #6c757d;
+            --label-hover-bg: #525966;
+            --label-hover-border: #7a828a;
+            --button-bg: #8ab4f8;
+            --button-text: #202124;
+            --button-hover-bg: #a3c5f9;
+            --button-disabled-bg: #5f6368;
+            --feedback-correct-bg: #344e41;
+            --feedback-correct-text: #c7f9cc;
+            --feedback-correct-border: #52b788;
+            --feedback-incorrect-bg: #5e2129;
+            --feedback-incorrect-text: #f8d7da;
+            --feedback-incorrect-border: #a4133c;
+            --feedback-rationale-text: #adb5bd;
+            /* Lighter gray for rationale */
+            --feedback-source-text: #c7d3e0;
+            --feedback-separator: #6c757d;
+            --radio-accent: #8ab4f8;
+        }
+
+        .light-theme {
+            --bg-color: #eef2f7;
+            --container-bg: #ffffff;
+            --text-color: #343a40;
+            --question-text-color: #0056b3;
+            --lo-text-color: #5a6e8a;
+            --border-color: #dee2e6;
+            --separator-color: #e9ecef;
+            --label-bg: #f8f9fa;
+            --label-border: #ced4da;
+            --label-hover-bg: #e2e6ea;
+            --label-hover-border: #adb5bd;
+            --button-bg: #007bff;
+            --button-text: white;
+            --button-hover-bg: #0056b3;
+            --button-disabled-bg: #6c757d;
+            --feedback-correct-bg: #d1e7dd;
+            --feedback-correct-text: #0f5132;
+            --feedback-correct-border: #badbcc;
+            --feedback-incorrect-bg: #f8d7da;
+            --feedback-incorrect-text: #842029;
+            --feedback-incorrect-border: #f5c2c7;
+            --feedback-rationale-text: #495057;
+            --feedback-source-text: #343a40;
+            --feedback-separator: #ccc;
+            --radio-accent: #007bff;
+        }
+
+        /* --- General Styles --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.7;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 40px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #theme-toggle-button {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: 1px solid var(--label-border);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            z-index: 1000;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #theme-toggle-button:hover {
+            opacity: 0.8;
+        }
+
+        #quiz-container {
+            max-width: 900px;
+            margin: 80px auto 30px auto;
+            background: var(--container-bg);
+            padding: 25px 35px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .question-block {
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--separator-color);
+            transition: border-color 0.3s;
+        }
+
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 5px;
+        }
+
+        .learning-objective {
+            font-size: 0.85em;
+            font-style: italic;
+            color: var(--lo-text-color);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--separator-color);
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 18px;
+            color: var(--question-text-color);
+            transition: color 0.3s;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 12px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--label-border);
+            background-color: var(--label-bg);
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+
+        .options label:hover {
+            background-color: var(--label-hover-bg);
+            border-color: var(--label-hover-border);
+        }
+
+        .options input[type="radio"]:checked+span {
+            font-weight: bold;
+            color: var(--question-text-color);
+        }
+
+        .options input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--radio-accent);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .check-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+        }
+
+        .check-button:hover {
+            opacity: 0.85;
+        }
+
+        .check-button:disabled {
+            background-color: var(--button-disabled-bg);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            display: none;
+            border: 1px solid transparent;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        .feedback.correct {
+            background-color: var(--feedback-correct-bg);
+            color: var(--feedback-correct-text);
+            border-color: var(--feedback-correct-border);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: var(--feedback-incorrect-bg);
+            color: var(--feedback-incorrect-text);
+            border-color: var(--feedback-incorrect-border);
+            display: block;
+        }
+
+        .feedback-status {
+            font-weight: bold;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .feedback-rationale {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--feedback-separator);
+            font-size: 0.9em;
+            color: var(--feedback-rationale-text);
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .feedback-source {
+            margin-top: 10px;
+            font-size: 0.85em;
+            font-style: italic;
+            color: var(--feedback-source-text);
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--question-text-color);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle-button">Toggle Theme</button>
+    <h1>Week 13 Tuesday Practice Quiz</h1>
+    <div id="quiz-container">
+        <!-- Questions will be loaded here by JavaScript -->
+    </div>
+    <script>
+        const quizData = [
+            // Acneiform Disorders, Pigment, and Hair Questions
+            {
+                learningObjective: "LO 1 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of acne vulgaris, rosacea and hidradenitis suppurativa and how treatments vary.",
+                question: "A 16-year-old male presents with numerous open and closed comedones on his forehead and nose. He has no inflammatory papules, pustules, or nodules. He is diagnosed with the mildest form of acne vulgaris. Which of the following is the most appropriate first-line treatment for this patient?",
+                options: {
+                    A: "Oral doxycycline",
+                    B: "Topical clindamycin",
+                    C: "Topical tretinoin",
+                    D: "Isotretinoin"
+                },
+                correctAnswer: "C",
+                rationale: "Comedonal acne is the mildest form of acne. The first-line treatment is a topical retinoid (vitamin A analog), such as tretinoin, tazarotene, or adapalene, which works by normalizing follicular keratinization.",
+                source: "'Comedonal Acne. Mildest form of acne. First line treatment: topical retinoids (vitamin A analog) o Tretinoin, tazarotene, and adapalene' (Acneiform Disorders, Pigment, and Hair, Page 6)"
+            },
+            {
+                learningObjective: "LO 1 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of acne vulgaris, rosacea and hidradenitis suppurativa and how treatments vary.",
+                question: "A 45-year-old woman presents with persistent facial redness, flushing, and scattered erythematous papules and pustules on her central face. She notes that her symptoms are exacerbated by drinking red wine and eating spicy foods. A key diagnostic feature that distinguishes this condition from acne vulgaris is the absence of which of the following lesions?",
+                options: {
+                    A: "Pustules",
+                    B: "Papules",
+                    C: "Comedones",
+                    D: "Nodules"
+                },
+                correctAnswer: "C",
+                rationale: "Papulopustular rosacea is an inflammatory disorder characterized by erythematous papules and pustules on a background of erythema, typically on the central face. A defining feature that differentiates it from acne vulgaris is the absence of comedones.",
+                source: "'Rosacea... Lead to: Abnormal innate immune response... No comedones' (Acneiform Disorders, Pigment, and Hair, Page 16)"
+            },
+            {
+                learningObjective: "LO 1 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of acne vulgaris, rosacea and hidradenitis suppurativa and how treatments vary.",
+                question: "A 24-year-old obese woman who smokes presents with recurrent, painful nodules and sterile abscesses in her axillae and groin. On examination, there are multiple interconnected sinus tracts with scarring. This condition involves the occlusion of pilosebaceous units in areas with apocrine glands. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Nodulocystic acne",
+                    B: "Furunculosis",
+                    C: "Hidradenitis suppurativa",
+                    D: "Papulopustular rosacea"
+                },
+                correctAnswer: "C",
+                rationale: "Hidradenitis suppurativa (acne inversa) is a chronic inflammatory condition affecting intertriginous sites with apocrine glands (e.g., axillae, groin). It is characterized by recurrent inflamed nodules, abscesses, draining sinus tracts, and scarring. Obesity and smoking are significant risk factors.",
+                source: "'Hidradenitis Suppurativa... occlusion of pilosebaceous units in skin with apocrine glands → inflammation of apocrine glands → inflamed nodules and sterile abscesses → draining sinus tracts and scarring' (Acneiform Disorders, Pigment, and Hair, Page 22)"
+            },
+            {
+                learningObjective: "LO 2 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, and treatment of hyperhidrosis.",
+                question: "A 22-year-old college student presents with a 7-year history of excessive sweating of his palms and soles. He reports that it is symmetric, stops while he is sleeping, and significantly impairs his daily activities, such as writing and shaking hands. His family history is positive for similar symptoms. He has no other medical conditions. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Secondary hyperhidrosis",
+                    B: "Primary hyperhidrosis",
+                    C: "Frey's syndrome",
+                    D: "Harlequin syndrome"
+                },
+                correctAnswer: "B",
+                rationale: "Primary hyperhidrosis is characterized by focal, visible, excessive sweating for at least 6 months with no apparent secondary cause. Diagnostic criteria include bilateral and symmetric presentation, impairment of daily activities, onset before age 25, and cessation during sleep, all of which this patient exhibits.",
+                source: "'CRITERIA FOR THE DIAGNOSIS OF PRIMARY HYPERHIDROSIS... 3. No apparent secondary causes 4. At least two of the following: Bilateral and symmetric, Impairs activities of daily life, Age of onset <25 years, Positive family history, Stops during sleep' (Acneiform Disorders, Pigment, and Hair, Page 30)"
+            },
+            {
+                learningObjective: "LO 2 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, and treatment of hyperhidrosis.",
+                question: "A 28-year-old woman with primary axillary hyperhidrosis has failed to respond to topical aluminum chloride. She is seeking an alternative treatment that can be performed in the office. Her physician suggests a series of injections into the axillary skin that will provide relief for approximately 6 months. This treatment works by blocking the release of acetylcholine at the neuromuscular junction of the sweat gland. What is this treatment?",
+                options: {
+                    A: "Oral glycopyrrolate",
+                    B: "Topical glycopyrrolate wipes",
+                    C: "Botulinum toxin injections",
+                    D: "Iontophoresis"
+                },
+                correctAnswer: "C",
+                rationale: "Botulinum toxin injection is an effective treatment for primary focal hyperhidrosis. It works by inhibiting the release of acetylcholine from presynaptic nerve terminals, thereby blocking the signal for sweat production. Treatments are typically repeated every 6 months.",
+                source: "'Botulinum toxin injections. Blocks acetylcholine release at NMJ. Requires repeated treatments every 6 months' (Acneiform Disorders, Pigment, and Hair, Page 31)"
+            },
+            {
+                learningObjective: "LO 2 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, and treatment of hyperhidrosis.",
+                question: "A 55-year-old man presents with new-onset generalized excessive sweating that occurs both day and night. He also reports unintentional weight loss and palpitations. His medical history is unremarkable. The physician suspects secondary hyperhidrosis. Which of the following underlying conditions is a likely cause of his symptoms?",
+                options: {
+                    A: "Hypothyroidism",
+                    B: "Hyperthyroidism",
+                    C: "Type 1 diabetes mellitus",
+                    D: "Primary hypertension"
+                },
+                correctAnswer: "B",
+                rationale: "Secondary hyperhidrosis is excessive sweating related to an underlying disease or medication. Unlike primary hyperhidrosis, it is often generalized and can occur during sleep. Hyperthyroidism is a well-known cause of secondary hyperhidrosis, along with other systemic symptoms like weight loss and palpitations.",
+                source: "'Secondary: related to underlying disease, medication, etc... Hyperthyroidism' (Acneiform Disorders, Pigment, and Hair, Page 29)"
+            },
+            {
+                learningObjective: "LO 3 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of common disorders of pigment such as vitiligo, pityriasis alba, and tinea versicolor and approaches to therapy.",
+                question: "A 25-year-old woman presents with patches of complete skin depigmentation on her hands and around her mouth. She has a history of autoimmune thyroiditis. The physician diagnoses vitiligo. What is the underlying pathophysiology of this condition?",
+                options: {
+                    A: "Overgrowth of Malassezia yeast",
+                    B: "Post-inflammatory pigment loss",
+                    C: "Autoimmune destruction of melanocytes",
+                    D: "Genetic inability to produce melanin"
+                },
+                correctAnswer: "C",
+                rationale: "Vitiligo is a pigmentary disorder caused by an autoimmune process that targets and destroys melanocytes, resulting in well-demarcated patches of depigmented skin. It is frequently associated with other autoimmune diseases.",
+                source: "'Vitiligo. Depigmentation of the skin due to autoimmunity targeting melanocytes. Associated with other autoimmune disease: alopecia areata, autoimmune hypothyroidism...' (Acneiform Disorders, Pigment, and Hair, Page 33)"
+            },
+            {
+                learningObjective: "LO 3 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of common disorders of pigment such as vitiligo, pityriasis alba, and tinea versicolor and approaches to therapy.",
+                question: "A 17-year-old male presents in late summer with multiple hypopigmented patches on his chest and back. The patches have a fine scale and became more noticeable after he spent time in the sun. A potassium hydroxide (KOH) preparation of skin scrapings would likely reveal hyphae and yeast. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Vitiligo",
+                    B: "Pityriasis alba",
+                    C: "Tinea versicolor",
+                    D: "Post-inflammatory hypopigmentation"
+                },
+                correctAnswer: "C",
+                rationale: "Tinea versicolor is a common superficial fungal infection caused by an overgrowth of Malassezia yeast. The yeast produces an acid that inhibits melanin production, leading to hypopigmented patches that become more apparent with tanning of the surrounding skin.",
+                source: "'Tinea versicolor. Common cutaneous reaction caused by overgrowth of Malassezia yeast. Yeast prevents tanning of underlying skin, with appearance worsening in the summer.' (Acneiform Disorders, Pigment, and Hair, Page 36)"
+            },
+            {
+                learningObjective: "LO 3 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation and diagnosis of common disorders of pigment such as vitiligo, pityriasis alba, and tinea versicolor and approaches to therapy.",
+                question: "An 8-year-old boy with a history of atopic dermatitis is brought to the clinic for evaluation of several light-colored patches on his cheeks. The patches are round, slightly scaly, and became more prominent during the summer. The condition is benign and typically resolves with age. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Tinea versicolor",
+                    B: "Vitiligo",
+                    C: "Pityriasis alba",
+                    D: "Tuberous sclerosis"
+                },
+                correctAnswer: "C",
+                rationale: "Pityriasis alba is a common, benign skin disorder that presents as hypopigmented, slightly scaly patches, typically on the face of young children. It is strongly associated with a history of atopic dermatitis.",
+                source: "'Pityriasis alba. Hypopigmented, round patches with slight scale occurring of the face of young children. Typically in children with atopic dermatitis.' (Acneiform Disorders, Pigment, and Hair, Page 35)"
+            },
+            {
+                learningObjective: "LO 4 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, pathophysiology, and treatment of common disorders of hair such as alopecia areata, tinea capitis, telogen effluvium, and androgenic alopecia.",
+                question: "A 28-year-old woman presents with two perfectly circular, smooth, non-scarring patches of hair loss on her scalp that have developed over the past month. She has no scaling or erythema. Her medical history is significant for Hashimoto's thyroiditis. What is the most likely pathophysiology of her hair loss?",
+                options: {
+                    A: "Fungal infection of the hair follicle",
+                    B: "Autoimmune destruction of hair follicles",
+                    C: "Diffuse shedding due to a stressful event",
+                    D: "Androgen-mediated follicular miniaturization"
+                },
+                correctAnswer: "B",
+                rationale: "Alopecia areata is a common, non-scarring alopecia characterized by circular areas of hair loss. It is a T-cell mediated autoimmune condition that targets hair follicles and is associated with other autoimmune diseases like thyroiditis and vitiligo.",
+                source: "'Alopecia areata... Circular areas of hair loss. Smooth, no erythema or scaling... Pathophysiology: Autoimmune destruction of hair follicles, T cell mediated. Associations: ...Hashimoto's thyroiditis' (Acneiform Disorders, Pigment, and Hair, Pages 39, 41)"
+            },
+            {
+                learningObjective: "LO 4 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, pathophysiology, and treatment of common disorders of hair such as alopecia areata, tinea capitis, telogen effluvium, and androgenic alopecia.",
+                question: "A 6-year-old boy presents with a patch of hair loss on his scalp. The area shows scaling, erythema, and several broken hairs ('black dots'). There is also associated itching. The physician suspects a fungal infection of the scalp. What is the most appropriate next step to confirm the diagnosis?",
+                options: {
+                    A: "Scalp biopsy",
+                    B: "Blood test for autoimmune markers",
+                    C: "Hair pull test",
+                    D: "KOH examination of scale and hair"
+                },
+                correctAnswer: "D",
+                rationale: "Tinea capitis is a dermatophyte fungal infection of the scalp that can mimic alopecia areata but is distinguished by the presence of scaling, itching, and inflammation. The diagnosis is confirmed by microscopic examination of a KOH preparation of skin scrapings and plucked hairs or by fungal culture.",
+                source: "'Tinea Capitis. Dermatophyte fungal infections of hair follicles can mimic alopecia areata. Differences include scaling, itching. Can diagnosis with scraping and microscopic examination of scale (KOH) or fungal culture.' (Acneiform Disorders, Pigment, and Hair, Page 42)"
+            },
+            {
+                learningObjective: "LO 4 (Acneiform Disorders, Pigment, and Hair): Identify and discuss the clinical presentation, diagnosis, pathophysiology, and treatment of common disorders of hair such as alopecia areata, tinea capitis, telogen effluvium, and androgenic alopecia.",
+                question: "A 32-year-old woman reports a significant increase in hair shedding for the past two months. She states that she notices large amounts of hair on her brush and in the shower drain. Three months prior, she underwent emergency surgery for a ruptured appendix. On examination, there is diffuse thinning of the hair across the entire scalp, but no discrete bald patches. A hair pull test is positive. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Androgenic alopecia",
+                    B: "Alopecia areata",
+                    C: "Telogen effluvium",
+                    D: "Tinea capitis"
+                },
+                correctAnswer: "C",
+                rationale: "Telogen effluvium is a diffuse, sudden hair loss caused by a premature shift of a large number of hairs into the telogen (resting) phase of the hair cycle. It is triggered by a significant stressful event, such as major illness, surgery, or pregnancy, and typically occurs 2-3 months after the event.",
+                source: "'Telogen Effluvium. Diffuse, sudden hair loss due to illness, hospitalization, pregnancy, surgery, other stressful events. Caused by more rapid cycling of hair and increased shedding.' (Acneiform Disorders, Pigment, and Hair, Page 44)"
+            },
+            // Skin and Soft Tissue Infections Questions
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 7-year-old boy is brought to the clinic with a rash on his face. Examination reveals several yellowish, thick-crusted lesions with irregular margins around his nose and mouth. The lesions are not painful. The physician gently scrubs away a crust to apply a topical antibiotic. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Bullous impetigo",
+                    B: "Ecthyma",
+                    C: "Erysipelas",
+                    D: "Non-bullous impetigo"
+                },
+                correctAnswer: "D",
+                rationale: "This question tests Learning Objective 1a. The clinical presentation of thick, 'honey-crusted' lesions on the face is classic for non-bullous impetigo, a superficial skin infection most commonly caused by S. aureus.",
+                source: "'Non-bullous Impetigo. Lesions thick & “honey-crusted” with rounded or irregular margins.' (Soft Tissue Infections Handout, Page 1)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 65-year-old diabetic patient presents with several crusted lesions on his shins. On examination, the lesions are found to be 'punched-out' circular ulcers with surrounding edema, which are deeper than typical impetigo lesions. The patient states they began as small blisters after insect bites. These lesions will likely heal with scarring. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Impetigo",
+                    B: "Ecthyma",
+                    C: "Furuncle",
+                    D: "Cellulitis"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1b. Ecthyma is a deeper skin infection than impetigo, involving the full thickness of the epidermis and extending into the dermis. It presents as vesicles or pustules that rupture to form 'punched-out' ulcers and heals with scar formation.",
+                source: "'Ecthyma. Deeper infection than impetigo which begins as vesicles which rupture → circular ulcers... Lesions heal with scarring.' (Soft Tissue Infections Handout, Page 2)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "An 80-year-old woman presents with a rapidly spreading rash on her left cheek. Examination reveals a bright-red, well-demarcated, raised, and tender plaque. The skin has a 'peau d'orange' (orange peel) texture. The patient also has a fever and chills. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Cellulitis",
+                    B: "Erysipelas",
+                    C: "Lymphangitis",
+                    D: "Necrotizing fasciitis"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1c. Erysipelas is a superficial form of cellulitis involving the upper dermis and lymphatics. It is characterized by a well-demarcated, raised, erythematous plaque and is often associated with systemic symptoms like fever and chills. The 'peau d'orange' sign is due to epidermal edema.",
+                source: "'Erysipelas... Infection → epidermal edema → “peau d’orange” (orange peel) appearance. Well demarcated, painful, tender erythema & step-up from uninfected areas.' (Soft Tissue Infections Handout, Page 2)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 25-year-old man presents with a painful red streak extending from a cut on his hand proximally up his forearm. He also has a fever, chills, and tender, swollen lymph nodes in his axilla. This clinical picture is indicative of an infection spreading through lymphatic channels. What is the most likely diagnosis?",
+                options: {
+                    A: "Cellulitis",
+                    B: "Erysipelas",
+                    C: "Lymphangitis",
+                    D: "Deep vein thrombosis"
+                },
+                correctAnswer: "C",
+                rationale: "This question tests Learning Objective 1d. Lymphangitis is the inflammation of lymphatic channels, typically due to an infection spreading from a distal site. It is characterized by painful red streaks extending proximally from the injury toward regional lymph nodes, which are often swollen and tender (lymphadenopathy).",
+                source: "'Lymphangitis... Rapidly spreads proximally in lymphatics → red streak toward regional nodes.' (Soft Tissue Infections Handout, Page 2)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 30-year-old man presents with a painful, red, swollen nodule on the back of his neck. On examination, there is a large, tender, fluctuant mass composed of several interconnected abscesses that are draining pus. He also has a fever. This lesion originated from infections in multiple adjacent hair follicles. What is the correct term for this lesion?",
+                options: {
+                    A: "Furuncle",
+                    B: "Carbuncle",
+                    C: "Ecthyma",
+                    D: "Hidradenitis suppurativa"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1e. A furuncle ('boil') is an infection of a single hair follicle. A carbuncle is a more severe infection composed of multiple interconnected furuncles that form a larger abscess with multiple drainage points, often associated with systemic symptoms.",
+                source: "'Furuncles and Carbuncles... Carbuncle: interconnected furuncles often found in back of neck.' (Soft Tissue Infections Handout, Page 3)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 28-year-old African American woman presents with a 10-year history of recurrent painful and draining nodules in her axillae. Examination reveals multiple abscesses, interconnected sinus tracts, and significant scarring. The condition is associated with obesity and smoking. What is the most likely diagnosis?",
+                options: {
+                    A: "Recurrent furunculosis",
+                    B: "Hidradenitis suppurativa",
+                    C: "Nodulocystic acne",
+                    D: "Scabies"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1f. Hidradenitis suppurativa is a chronic inflammatory disease of hair follicles in apocrine gland-bearing skin (axillae, groin). It presents with recurrent painful nodules, abscesses, sinus tracts, and scarring. It disproportionately affects women, especially African American women.",
+                source: "'Hidradenitis suppurativa... Women (especially African-American women) are affected >> men... Lesions found in areas where apocrine sweat glands develop (axillae, near breasts, perineum)... Grade III: diffuse lesions with multiple, interconnected sinus tracts & abscesses' (Soft Tissue Infections Handout, Page 3)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 50-year-old man with chronic leg edema presents with a 2-day history of a warm, red, swollen, and painful left lower leg. The erythema is diffuse with poorly defined borders. The skin is pitting on pressure. He also has a fever. This infection involves the deeper dermis and subcutaneous fat. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Erysipelas",
+                    B: "Stasis dermatitis",
+                    C: "Cellulitis",
+                    D: "Deep vein thrombosis"
+                },
+                correctAnswer: "C",
+                rationale: "This question tests Learning Objective 1g. Cellulitis is an infection of the deeper dermis and subcutaneous fat. Unlike erysipelas, it is characterized by diffuse erythema with margins that are not well-demarcated. Chronic edema is a major predisposing factor.",
+                source: "'Cellulitis: infection of deeper dermis & subcutaneous fat... Predisposing factors: Conditions associated with chronic edema. Clinical findings: Diffuse erythema, pain, tenderness, & swelling (unlike erysipelas, margins not well demarcated).' (Soft Tissue Infections Handout, Page 4)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 29-year-old dental hygienist presents with a painful lesion on her index finger. She reports recurrent episodes of tenderness and paresthesias, followed by the eruption of a cluster of vesicles around her nail bed. She does not consistently wear gloves at work. Which of the following is the most likely diagnosis?",
+                options: {
+                    A: "Paronychia",
+                    B: "Herpetic whitlow",
+                    C: "Contact dermatitis",
+                    D: "Ecthyma"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1h. Herpetic whitlow is a viral infection of the finger caused by the Herpes Simplex Virus (HSV). It is characterized by recurrent episodes of pain and the formation of vesicles, often in a cluster. It is an occupational hazard for healthcare workers exposed to oral secretions.",
+                source: "'Herpetic whitlow... Recurrent pain, tenderness, paresthesias, vesicles in finger from exposure to person with mucosal HSV.' (Soft Tissue Infections Handout, Page 5)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 65-year-old diabetic man presents with severe pain in his perineal region. He is febrile, hypotensive, and appears toxic. Examination reveals dusky, erythematous skin over the scrotum and perineum with overlying bullae. The area is exquisitely tender, and there is palpable crepitus (gas in the tissue). This is a surgical emergency involving infection of the fascia. What is the most likely diagnosis?",
+                options: {
+                    A: "Cellulitis",
+                    B: "Gas gangrene",
+                    C: "Necrotizing fasciitis",
+                    D: "Ecthyma gangrenosum"
+                },
+                correctAnswer: "C",
+                rationale: "This question tests Learning Objective 1i. Necrotizing fasciitis is a rapidly progressive, life-threatening infection of the fascia. Key clinical signs include pain out of proportion to exam findings, systemic toxicity, dusky skin, bullae, and crepitus. Fournier's gangrene is a variant of Type I necrotizing fasciitis affecting the perineum.",
+                source: "'Necrotizing fasciitis... Rapidly progressive erythema & edema of overlying skin (red-purple with patches of blue-gray)... Often with crepitus on palpation (gas-producing bacteria)... Systemic toxicity (most)... Type I... Often diabetics... Often a complication of post-operative abdominal & perineal infections (eg Fournier’s gangrene).' (Soft Tissue Infections Handout, Page 5)"
+            },
+            {
+                learningObjective: "LO 1 (Soft Tissue Infections): Summarize the clinical manifestations, microbiology, & approach to management of various soft tissue infections.",
+                question: "A 70-year-old man with peripheral vascular disease undergoes a below-knee amputation. Three days post-operatively, he develops sudden, severe pain in the stump. The overlying skin appears pale and bronze-colored, and there are large, dark bullae. The patient is hypotensive, tachycardic, and has a sense of impending doom. On surgical exploration, the muscle appears brick-red and does not contract. What is the most likely diagnosis?",
+                options: {
+                    A: "Necrotizing fasciitis",
+                    B: "Gas gangrene",
+                    C: "Severe cellulitis",
+                    D: "Pyoderma gangrenosum"
+                },
+                correctAnswer: "B",
+                rationale: "This question tests Learning Objective 1j. Gas gangrene (clostridial myonecrosis) is a life-threatening infection of muscle, typically caused by Clostridium perfringens. It is characterized by the sudden onset of severe pain, systemic toxicity, skin discoloration, bullae, and gas production. A key diagnostic finding at surgery is nonviable muscle.",
+                source: "'Gas gangrene... Clinical picture: a. Sudden onset of severe pain at site of recent surgery or trauma... c. Overlying skin pale & bronze or purplish-red... e. Patients usually critically ill (hypotensive with shock... sense of impending doom)... g. Dx: surgical diagnosis--involved muscle “brick red” or black & does not bleed or contract.' (Soft Tissue Infections Handout, Page 6)"
+            },
+            {
+                learningObjective: "LO 2 (Soft Tissue Infections): Consider non-infectious dermatoses in differential diagnosis of infectious causes.",
+                question: "A 40-year-old man with a long history of Crohn's disease presents with a painful, enlarging ulcer on his shin. The lesion began as a tender nodule that rapidly broke down. Examination reveals a large ulcer with a purulent base and irregular, undermined, violaceous borders. Multiple courses of antibiotics have been ineffective. Which non-infectious condition best fits this description?",
+                options: {
+                    A: "Gout",
+                    B: "Sweet syndrome",
+                    C: "Pyoderma gangrenosum",
+                    D: "Calciphylaxis"
+                },
+                correctAnswer: "C",
+                rationale: "Pyoderma gangrenosum is a rare, neutrophilic dermatosis that causes painful skin ulcers with characteristic undermined borders. It is strongly associated with inflammatory bowel disease (IBD), like Crohn's disease, and does not respond to antibiotics.",
+                source: "'Pyoderma gangrenosum (neutrophilic dermatosis causing painful skin ulcers with undermined borders & erythema)--strong association with IBD' (Soft Tissue Infections Handout, Page 5)"
+            },
+            {
+                learningObjective: "LO 2 (Soft Tissue Infections): Consider non-infectious dermatoses in differential diagnosis of infectious causes.",
+                question: "A 55-year-old woman with acute myelogenous leukemia develops a fever and multiple tender, red-to-purple plaques and nodules on her arms and neck. A skin biopsy would show a dense dermal infiltrate of mature neutrophils. This condition can mimic cellulitis but is a non-infectious inflammatory disorder. What is the most likely diagnosis?",
+                options: {
+                    A: "Pyoderma gangrenosum",
+                    B: "Sweet syndrome",
+                    C: "Erysipelas",
+                    D: "Erythema nodosum"
+                },
+                correctAnswer: "B",
+                rationale: "Sweet syndrome (acute febrile neutrophilic dermatosis) is characterized by the abrupt onset of fever, leukocytosis, and tender erythematous plaques or nodules. It is often associated with malignancy (especially hematologic), autoimmune disorders, or infections.",
+                source: "'Sweet syndrome (acute febrile neutrophilic dermatosis)--acute-onset of tender plaques or nodules, fever... often associated with cancer, autoimmune disorders, or GI infections' (Soft Tissue Infections Handout, Page 5)"
+            },
+            {
+                learningObjective: "LO 2 (Soft Tissue Infections): Consider non-infectious dermatoses in differential diagnosis of infectious causes.",
+                question: "A 60-year-old man presents with an acutely painful, red, hot, and swollen great toe. The symptoms began abruptly overnight. He has a history of hypertension and diuretic use. An infectious etiology like cellulitis is considered, but the localization to a single joint and the rapid onset are highly suggestive of another condition. What is the most likely diagnosis?",
+                options: {
+                    A: "Gout",
+                    B: "Septic arthritis",
+                    C: "Erysipelas",
+                    D: "Pyoderma gangrenosum"
+                },
+                correctAnswer: "A",
+                rationale: "Acute gouty arthritis can closely mimic cellulitis. It presents with the sudden onset of severe pain, erythema, warmth, and swelling of a joint, most classically the first metatarsophalangeal joint (podagra).",
+                source: "'Non-infectious disorders mimicking cellulitis. a. Gout' (Soft Tissue Infections Handout, Page 5)"
+            },
+            // Shoulder and Posterior Arm Questions
+            {
+                learningObjective: "LO 1 (Shoulder and Posterior Arm): Identify the bony features of the clavicle, scapula, and humerus. Discuss common sites of fractures, predict what structures may be at risk, and discuss what sensory &/or motor deficits may occur.",
+                question: "A 21-year-old male falls directly onto his shoulder during a rugby match. He presents with significant pain and a visible deformity where his shoulder appears to have 'dropped.' An X-ray confirms a fracture at the junction of the middle and lateral thirds of the clavicle. The medial fragment of the clavicle is typically displaced superiorly due to the pull of which muscle?",
+                options: {
+                    A: "Trapezius",
+                    B: "Pectoralis major",
+                    C: "Deltoid",
+                    D: "Sternocleidomastoid"
+                },
+                correctAnswer: "D",
+                rationale: "The clavicle most commonly fractures at its weakest point, the junction of the middle and lateral thirds. Following the fracture, the sternocleidomastoid (SCM) muscle pulls the medial fragment superiorly, while the weight of the arm and the pull of the pectoralis major cause the shoulder to drop and the lateral fragment to be displaced inferiorly and medially.",
+                source: "'After the fracture, the sternocleidomastoid muscle elevates the medial fragment of bone... Thus, the shoulder drops.' (Shoulder and Posterior Arm Handout, Page 2)"
+            },
+            {
+                learningObjective: "LO 1 (Shoulder and Posterior Arm): Identify the bony features of the clavicle, scapula, and humerus. Discuss common sites of fractures, predict what structures may be at risk, and discuss what sensory &/or motor deficits may occur.",
+                question: "A 78-year-old woman with osteoporosis falls and sustains a fracture of the surgical neck of the humerus. On examination, she has weakness in abducting her arm and a patch of sensory loss over the lateral aspect of her shoulder. These deficits are due to an injury to which nerve?",
+                options: {
+                    A: "Radial nerve",
+                    B: "Musculocutaneous nerve",
+                    C: "Axillary nerve",
+                    D: "Suprascapular nerve"
+                },
+                correctAnswer: "C",
+                rationale: "The axillary nerve wraps around the surgical neck of the humerus. It is therefore at high risk of injury with fractures at this common site. The axillary nerve innervates the deltoid muscle (a primary arm abductor) and provides cutaneous sensation to the skin over the deltoid region.",
+                source: "'Fracture of the surgical neck of the humerus...What vessels/nerves are at risk of injury with this fracture? Axillary nerve' (Shoulder and Posterior Arm Slides, Page 48)"
+            },
+            {
+                learningObjective: "LO 1 (Shoulder and Posterior Arm): Identify the bony features of the clavicle, scapula, and humerus. Discuss common sites of fractures, predict what structures may be at risk, and discuss what sensory &/or motor deficits may occur.",
+                question: "A 30-year-old man is involved in a high-speed motor vehicle accident and sustains a transverse fracture of the mid-shaft of the humerus. In the emergency department, he is unable to extend his wrist and fingers against gravity. This clinical finding ('wrist drop') is highly suggestive of an injury to the nerve that travels in the spiral groove on the posterior surface of the humerus. Which nerve has been injured?",
+                options: {
+                    A: "Axillary nerve",
+                    B: "Radial nerve",
+                    C: "Median nerve",
+                    D: "Ulnar nerve"
+                },
+                correctAnswer: "B",
+                rationale: "The radial nerve and the deep brachial artery run in the radial (spiral) groove on the posterior shaft of the humerus. They are vulnerable to injury in mid-shaft humeral fractures, leading to paralysis of the extensor muscles of the wrist and fingers.",
+                source: "'Transverse fracture of humeral shaft... What vessels/nerves are at risk of injury with this fracture? ... Radial nerve' (Shoulder and Posterior Arm Slides, Page 47)"
+            },
+            {
+                learningObjective: "LO 2 (Shoulder and Posterior Arm): Describe the attachments, innervation, blood supply, primary functions of the muscles of the shoulder and posterior arm. Predict the clinical consequences of injury to these muscles or their innervation.",
+                question: "A patient is diagnosed with a tear of the teres minor muscle. This muscle is one of the four rotator cuff muscles and is responsible for external (lateral) rotation of the arm. Which nerve innervates the teres minor muscle?",
+                options: {
+                    A: "Suprascapular nerve",
+                    B: "Axillary nerve",
+                    C: "Lower subscapular nerve",
+                    D: "Upper subscapular nerve"
+                },
+                correctAnswer: "B",
+                rationale: "The axillary nerve innervates both the deltoid muscle and the teres minor muscle. It also provides sensation to the skin over the deltoid.",
+                source: "'Teres Minor... Innervation: Axillary n.' (Shoulder and Posterior Arm Slides, Page 25)"
+            },
+            {
+                learningObjective: "LO 2 (Shoulder and Posterior Arm): Describe the attachments, innervation, blood supply, primary functions of the muscles of the shoulder and posterior arm. Predict the clinical consequences of injury to these muscles or their innervation.",
+                question: "A bodybuilder is working to strengthen the primary extensor muscle of the arm. This muscle has three heads (long, lateral, and medial) and its main action is to extend the forearm at the elbow joint. The long head also assists in extending and adducting the arm at the shoulder. Which muscle is being described?",
+                options: {
+                    A: "Biceps brachii",
+                    B: "Deltoid",
+                    C: "Triceps brachii",
+                    D: "Teres major"
+                },
+                correctAnswer: "C",
+                rationale: "The triceps brachii is the large muscle in the posterior compartment of the arm. It is the primary extensor of the forearm and is innervated by the radial nerve. Its three heads have distinct proximal attachments, but all insert distally on the olecranon of the ulna.",
+                source: "'Triceps Brachii... Action: Extension of arm and forearm; adduction of arm. Innervation: Radial n.' (Shoulder and Posterior Arm Slides, Page 34)"
+            },
+            {
+                learningObjective: "LO 2 (Shoulder and Posterior Arm): Describe the attachments, innervation, blood supply, primary functions of the muscles of the shoulder and posterior arm. Predict the clinical consequences of injury to these muscles or their innervation.",
+                question: "A patient suffers a penetrating injury that severs the lower subscapular nerve. This nerve arises from the posterior cord of the brachial plexus. Paralysis of the muscles supplied by this nerve would result in weakness of which arm movements?",
+                options: {
+                    A: "Abduction and lateral rotation",
+                    B: "Flexion and supination",
+                    C: "Adduction and medial rotation",
+                    D: "Extension and pronation"
+                },
+                correctAnswer: "C",
+                rationale: "The lower subscapular nerve innervates the subscapularis and teres major muscles. Both of these muscles are powerful adductors and medial rotators of the arm.",
+                source: "'Lower subscapular nerve – arises from the posterior cord; innervates teres major and subscapularis.' (Shoulder and Posterior Arm Handout, Page 6). Actions for Teres Major and Subscapularis are 'Adducts & medially rotates humerus' and 'Medially rotates & adducts humerus' respectively. (Shoulder and Posterior Arm Handout, Page 3)"
+            },
+            {
+                learningObjective: "LO 3 (Shoulder and Posterior Arm): Compare and contrast the rotator cuff muscles; explain their significance in stabilization of the glenohumeral joint.",
+                question: "A 55-year-old tennis player presents with shoulder pain, particularly when serving. An MRI reveals a tear of the most commonly injured rotator cuff muscle. This muscle is responsible for initiating the first 15 degrees of arm abduction. Which muscle is torn?",
+                options: {
+                    A: "Supraspinatus",
+                    B: "Infraspinatus",
+                    C: "Teres minor",
+                    D: "Subscapularis"
+                },
+                correctAnswer: "A",
+                rationale: "The supraspinatus muscle is the most frequently torn rotator cuff muscle. Its primary function is to initiate abduction of the arm. After the first 15 degrees, the deltoid muscle becomes the primary abductor.",
+                source: "'Supraspinatus ruptures and tears are the most common rotator cuff injuries... Patient will have difficulty initiating abduction of the arm.' (Shoulder and Posterior Arm Slides, Page 31)"
+            },
+            {
+                learningObjective: "LO 3 (Shoulder and Posterior Arm): Compare and contrast the rotator cuff muscles; explain their significance in stabilization of the glenohumeral joint.",
+                question: "During an orthopedic examination of the shoulder, the physician asks the patient to place their hand on their lower back and push away against resistance. This maneuver tests the strength of the rotator cuff muscle that inserts on the lesser tubercle of the humerus and is the primary medial rotator of the arm. Which muscle is being tested?",
+                options: {
+                    A: "Supraspinatus",
+                    B: "Infraspinatus",
+                    C: "Teres minor",
+                    D: "Subscapularis"
+                },
+                correctAnswer: "D",
+                rationale: "The subscapularis is the only rotator cuff muscle that attaches to the lesser tubercle of the humerus. It is the main medial (internal) rotator of the arm. The 'lift-off' test is used to assess its function.",
+                source: "'Subscapularis... Distal Attachment: Lesser tubercle of humerus. Action: Medial rotation of arm.' (Shoulder and Posterior Arm Slides, Page 26)"
+            },
+            {
+                learningObjective: "LO 3 (Shoulder and Posterior Arm): Compare and contrast the rotator cuff muscles; explain their significance in stabilization of the glenohumeral joint.",
+                question: "A patient has weakness in lateral (external) rotation of the arm. Two of the rotator cuff muscles are primarily responsible for this action. Both of these muscles are innervated by nerves originating from the brachial plexus. Which pair of muscles is responsible for lateral rotation?",
+                options: {
+                    A: "Supraspinatus and Deltoid",
+                    B: "Subscapularis and Teres major",
+                    C: "Infraspinatus and Teres minor",
+                    D: "Pectoralis major and Latissimus dorsi"
+                },
+                correctAnswer: "C",
+                rationale: "The infraspinatus (innervated by the suprascapular nerve) and the teres minor (innervated by the axillary nerve) are the two rotator cuff muscles whose primary action is lateral rotation of the arm at the glenohumeral joint.",
+                source: "'Infraspinatus... Action: Lateral rotation of arm.' and 'Teres Minor... Action: Lateral rotation of arm.' (Shoulder and Posterior Arm Slides, Pages 24, 25)"
+            },
+            {
+                learningObjective: "LO 4 (Shoulder and Posterior Arm): Describe the blood supply to the shoulder region and posterior arm, and discuss examples of collateral blood supply and arterial anastomoses around the shoulder joint and scapular region.",
+                question: "A patient requires ligation of the axillary artery between its first and second parts. To maintain blood flow to the upper limb, blood must be rerouted from the subclavian artery to the third part of the axillary artery via an alternative pathway. This collateral circulation relies on an important anastomosis around the scapula. Which three arteries form this critical scapular anastomosis?",
+                options: {
+                    A: "Thoracoacromial, posterior humeral circumflex, and axillary arteries",
+                    B: "Suprascapular, dorsal scapular, and circumflex scapular arteries",
+                    C: "Lateral thoracic, thoracodorsal, and deep brachial arteries",
+                    D: "Anterior humeral circumflex, posterior humeral circumflex, and subscapular arteries"
+                },
+                correctAnswer: "B",
+                rationale: "The scapular anastomosis is a crucial network for collateral circulation. It involves the suprascapular artery (from the thyrocervical trunk of the subclavian), the dorsal scapular artery (from the subclavian), and the circumflex scapular artery (a branch of the subscapular artery from the axillary artery).",
+                source: "'Clinical Note: ...Several arteries anastomose on the posterior surface of the scapula: the dorsal scapular, suprascapular and circumflex scapular.' (Shoulder and Posterior Arm Handout, Page 5)"
+            },
+            {
+                learningObjective: "LO 4 (Shoulder and Posterior Arm): Describe the blood supply to the shoulder region and posterior arm, and discuss examples of collateral blood supply and arterial anastomoses around the shoulder joint and scapular region.",
+                question: "During a dissection of the posterior arm, a medical student identifies the radial nerve in the radial groove of the humerus. The student notes that a major artery travels alongside the nerve in this groove. This artery is the largest branch of the brachial artery in the arm. What is this vessel?",
+                options: {
+                    A: "Posterior circumflex humeral artery",
+                    B: "Superior ulnar collateral artery",
+                    C: "Deep brachial artery (profunda brachii)",
+                    D: "Circumflex scapular artery"
+                },
+                correctAnswer: "C",
+                rationale: "The deep brachial artery is the largest branch of the brachial artery. It arises high in the arm and travels with the radial nerve in the radial groove to supply the posterior compartment of the arm.",
+                source: "'Deep brachial artery: Branch of brachial artery that runs in the radial groove of humerus' (Shoulder and Posterior Arm Slides, Page 45)"
+            },
+            {
+                learningObjective: "LO 4 (Shoulder and Posterior Arm): Describe the blood supply to the shoulder region and posterior arm, and discuss examples of collateral blood supply and arterial anastomoses around the shoulder joint and scapular region.",
+                question: "A patient suffers a stab wound that damages the structures passing through the quadrangular space. In addition to the axillary nerve, which artery is at risk of injury in this anatomical space?",
+                options: {
+                    A: "Anterior circumflex humeral artery",
+                    B: "Posterior circumflex humeral artery",
+                    C: "Circumflex scapular artery",
+                    D: "Suprascapular artery"
+                },
+                correctAnswer: "B",
+                rationale: "The quadrangular space is bordered by the teres minor, teres major, long head of the triceps, and the humerus. It transmits the axillary nerve and the posterior circumflex humeral artery, both of which are at risk with injuries to this region.",
+                source: "'Quadrangular Space... Content: Axillary Nerve and Posterior Circumflex Humeral Artery' (Shoulder and Posterior Arm Slides, Page 46)"
+            },
+            {
+                learningObjective: "LO 5 (Shoulder and Posterior Arm): Describe the anatomical characteristics (osteology, ligaments, tendons, and capsule) of the sternoclavicular, acromioclavicular and glenohumeral joints. Discuss the functions of the joints, and distinguish the nerves that convey joint pain and proprioception following Hilton’s Law.",
+                question: "A gymnast falls and injures her shoulder. An MRI shows a tear of the fibrocartilaginous ring that attaches to the margin of the glenoid fossa. This structure serves to deepen the socket of the glenohumeral joint and enhance its stability. What is this structure called?",
+                options: {
+                    A: "Articular disc",
+                    B: "Glenoid labrum",
+                    C: "Coracoacromial ligament",
+                    D: "Joint capsule"
+                },
+                correctAnswer: "B",
+                rationale: "The glenoid labrum is a fibrocartilaginous rim that attaches around the margin of the glenoid fossa. It deepens the shallow socket, increasing the articular surface area and contributing significantly to the stability of the ball-and-socket glenohumeral joint.",
+                source: "'Stability is enhanced by the ring-like, fibrocartilaginous glenoid labrum (increases fit, deepens socket)...' (Shoulder and Posterior Arm Handout, Page 8)"
+            },
+            {
+                learningObjective: "LO 5 (Shoulder and Posterior Arm): Describe the anatomical characteristics (osteology, ligaments, tendons, and capsule) of the sternoclavicular, acromioclavicular and glenohumeral joints. Discuss the functions of the joints, and distinguish the nerves that convey joint pain and proprioception following Hilton’s Law.",
+                question: "A patient presents with a shoulder separation after a fall onto the point of the shoulder. This injury involves the acromioclavicular (AC) joint. In a severe separation (Grade III), both the acromioclavicular ligament and a much stronger, two-part ligament that anchors the clavicle to the scapula are torn. What is this stronger ligament?",
+                options: {
+                    A: "Coracohumeral ligament",
+                    B: "Coracoclavicular ligament",
+                    C: "Glenohumeral ligament",
+                    D: "Transverse humeral ligament"
+                },
+                correctAnswer: "B",
+                rationale: "The coracoclavicular ligament (composed of the trapezoid and conoid ligaments) is the primary stabilizer of the AC joint, anchoring the clavicle to the coracoid process of the scapula and preventing superior displacement. A severe shoulder separation involves rupture of this ligament.",
+                source: "'AC dislocation is deemed more severe and... results in the rupture of the strong, coracoclavicular ligament along with the acromioclavicular ligament' (Shoulder and Posterior Arm Handout, Page 8)"
+            },
+            {
+                learningObjective: "LO 5 (Shoulder and Posterior Arm): Describe the anatomical characteristics (osteology, ligaments, tendons, and capsule) of the sternoclavicular, acromioclavicular and glenohumeral joints. Discuss the functions of the joints, and distinguish the nerves that convey joint pain and proprioception following Hilton’s Law.",
+                question: "According to Hilton's Law, the nerves that supply the muscles moving a joint also supply the joint itself and the skin over the joint. A patient with a glenohumeral joint injury complains of pain that is felt both deep in the joint and over the lateral shoulder. Which two nerves are the primary sources of sensory innervation to the glenohumeral joint?",
+                options: {
+                    A: "Radial and median nerves",
+                    B: "Musculocutaneous and lower subscapular nerves",
+                    C: "Suprascapular and axillary nerves",
+                    D: "Long thoracic and thoracodorsal nerves"
+                },
+                correctAnswer: "C",
+                rationale: "Following Hilton's Law, the glenohumeral joint is primarily innervated by articular branches from the nerves that cross it and supply its muscles. The suprascapular nerve and the axillary nerve are the main nerves providing sensory (pain and proprioception) innervation to the shoulder joint.",
+                source: "'Innervation: Hilton’s Law: suprascapular n., axillary n., lateral/medial pectoral n., musculocutaneous n., upper/lower subscapular n., thoracodorsal n., radial n.' (Shoulder and Posterior Arm Handout, Page 9)"
+            },
+            {
+                learningObjective: "LO 6 (Shoulder and Posterior Arm): Discuss the clinical presentation and anatomical basis for the following: rotator cuff injuries, dislocation of the sternoclavicular joint, dislocation of the acromioclavicular joint (shoulder separation), dislocation of the glenohumeral joint (shoulder dislocation), and shoulder impingement/instability.",
+                question: "A 20-year-old volleyball player presents with anterior shoulder pain after falling on an abducted and externally rotated arm. On examination, there is a visible 'hollowing' under the acromion and the patient is holding his arm in slight abduction. An X-ray confirms an anterior dislocation of the glenohumeral joint. Which nerve is most commonly injured in this type of dislocation?",
+                options: {
+                    A: "Radial nerve",
+                    B: "Axillary nerve",
+                    C: "Median nerve",
+                    D: "Musculocutaneous nerve"
+                },
+                correctAnswer: "B",
+                rationale: "Anterior dislocation of the glenohumeral joint is the most common type of shoulder dislocation. The head of the humerus is displaced anteriorly and inferiorly, which can stretch or damage the nearby axillary nerve as it exits the quadrangular space.",
+                source: "'Shoulder Dislocation/Subluxation... Risk of axillary nerve and artery damage' (Shoulder and Posterior Arm Slides, Page 17)"
+            },
+            {
+                learningObjective: "LO 6 (Shoulder and Posterior Arm): Discuss the clinical presentation and anatomical basis for the following: rotator cuff injuries, dislocation of the sternoclavicular joint, dislocation of the acromioclavicular joint (shoulder separation), dislocation of the glenohumeral joint (shoulder dislocation), and shoulder impingement/instability.",
+                question: "A 45-year-old painter presents with chronic shoulder pain that is worse when he works overhead. He reports a painful arc of motion during abduction between 60 and 120 degrees. The physician suspects shoulder impingement syndrome, where the rotator cuff tendons are compressed in the subacromial space. Which structure forms the 'roof' of this space, under which the tendons are being impinged?",
+                options: {
+                    A: "Coracoid process",
+                    B: "Coracoacromial ligament",
+                    C: "Clavicle",
+                    D: "Spine of the scapula"
+                },
+                correctAnswer: "B",
+                rationale: "The coracoacromial arch, formed by the acromion and the coracoacromial ligament, forms the roof of the subacromial space. In shoulder impingement syndrome, the supraspinatus tendon and subacromial bursa are compressed against this rigid structure during arm elevation.",
+                source: "'Coracoacromial ligament: protective structure spanning from acromion to coracoid process of scapula... prevents superior displacement.' (Shoulder and Posterior Arm Handout, Page 8)"
+            },
+            {
+                learningObjective: "LO 6 (Shoulder and Posterior Arm): Discuss the clinical presentation and anatomical basis for the following: rotator cuff injuries, dislocation of the sternoclavicular joint, dislocation of the acromioclavicular joint (shoulder separation), dislocation of the glenohumeral joint (shoulder dislocation), and shoulder impingement/instability.",
+                question: "A 30-year-old hockey player is checked hard into the boards and sustains a direct blow to the point of his shoulder. He has severe pain and a visible 'step-off' deformity where his clavicle is displaced superiorly relative to his acromion. This injury is commonly referred to as a 'shoulder separation.' What joint has been dislocated?",
+                options: {
+                    A: "Sternoclavicular joint",
+                    B: "Glenohumeral joint",
+                    C: "Scapulothoracic interface",
+                    D: "Acromioclavicular joint"
+                },
+                correctAnswer: "D",
+                rationale: "A dislocation of the acromioclavicular (AC) joint is known as a shoulder separation. It results from trauma to the point of the shoulder, often tearing the AC and coracoclavicular ligaments, which allows the clavicle to be displaced superiorly.",
+                source: "'Acromioclavicular Joint Sprains (a.k.a. Shoulder Separation)' (Shoulder and Posterior Arm Slides, Page 14)"
+            },
+            {
+                learningObjective: "LO 7 (Shoulder and Posterior Arm): Identify anatomical structures associated with the shoulder and posterior arm on X-Rays, MRI, and CT scans.",
+                question: "A radiologist is reviewing an AP shoulder radiograph. They identify the large, rounded prominence on the superolateral aspect of the proximal humerus, which serves as the insertion site for the supraspinatus, infraspinatus, and teres minor muscles. What is this structure?",
+                options: {
+                    A: "Lesser tubercle",
+                    B: "Head of the humerus",
+                    C: "Greater tubercle",
+                    D: "Deltoid tuberosity"
+                },
+                correctAnswer: "C",
+                rationale: "The greater tubercle is a prominent bony landmark on the proximal humerus that is clearly visible on standard radiographs. It serves as the distal attachment site for three of the four rotator cuff muscles.",
+                source: "'Greater tubercle' (labeled on radiograph) (Shoulder and Posterior Arm Slides, Page 7)"
+            },
+            {
+                learningObjective: "LO 7 (Shoulder and Posterior Arm): Identify anatomical structures associated with the shoulder and posterior arm on X-Rays, MRI, and CT scans.",
+                question: "On a coronal MRI of the shoulder, a physician is evaluating a patient for a rotator cuff tear. The physician identifies the supraspinatus muscle and tendon passing through the space inferior to the acromion. A complete tear is identified as a fluid-filled gap in the tendon. Which bony process is located just superior to the supraspinatus tendon?",
+                options: {
+                    A: "Coracoid process",
+                    B: "Glenoid",
+                    C: "Acromion",
+                    D: "Spine of the scapula"
+                },
+                correctAnswer: "C",
+                rationale: "The acromion forms the bony roof of the subacromial space, through which the supraspinatus tendon passes to insert on the greater tubercle. This anatomical relationship is central to shoulder impingement and rotator cuff tears and is well-visualized on MRI.",
+                source: "'Acromion' (labeled on MRI, superior to supraspinatus tendon) (Shoulder and Posterior Arm Slides, Page 31)"
+            },
+            {
+                learningObjective: "LO 7 (Shoulder and Posterior Arm): Identify anatomical structures associated with the shoulder and posterior arm on X-Rays, MRI, and CT scans.",
+                question: "While reviewing an axillary view X-ray of the shoulder, an orthopedic surgeon assesses the relationship between the humeral head and the glenoid. They identify the shallow, pear-shaped articular surface of the scapula that the humeral head articulates with. What is this structure?",
+                options: {
+                    A: "Glenoid fossa",
+                    B: "Acromion",
+                    C: "Coracoid process",
+                    D: "Subscapular fossa"
+                },
+                correctAnswer: "A",
+                rationale: "The glenoid fossa is the articular surface of the scapula that forms the glenohumeral joint with the head of the humerus. Its shape and orientation are critical for assessing joint stability and alignment on radiographic images.",
+                source: "'Glenoid fossa' (labeled on radiograph, articulating with head of humerus) (Shoulder and Posterior Arm Slides, Page 7)"
+            }
+        ];
+        const quizContainer = document.getElementById('quiz-container');
+        const themeToggleButton = document.getElementById('theme-toggle-button');
+        const bodyElement = document.body;
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                bodyElement.classList.add('light-theme');
+                themeToggleButton.textContent = 'Switch to Dark Mode';
+            } else {
+                bodyElement.classList.remove('light-theme');
+                themeToggleButton.textContent = 'Switch to Light Mode';
+            }
+            localStorage.setItem('quizTheme', theme);
+        }
+
+        function loadQuiz() {
+            quizData.forEach((qData, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.classList.add('question-block');
+                questionBlock.id = `q${index}`;
+
+                const loText = document.createElement('div');
+                loText.classList.add('learning-objective');
+                loText.textContent = qData.learningObjective;
+                questionBlock.appendChild(loText);
+
+                const questionText = document.createElement('p');
+                questionText.classList.add('question-text');
+                questionText.innerHTML = `${index + 1}. ${qData.question}`;
+                questionBlock.appendChild(questionText);
+
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+                for (const optionKey in qData.options) {
+                    const optionId = `q${index}_${optionKey}`;
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `q${index}`;
+                    radioInput.value = optionKey;
+                    radioInput.id = optionId;
+
+                    const labelText = document.createElement('span');
+                    labelText.textContent = ` ${optionKey}. ${qData.options[optionKey]}`;
+
+                    label.appendChild(radioInput);
+                    label.appendChild(labelText);
+                    optionsDiv.appendChild(label);
+                }
+                questionBlock.appendChild(optionsDiv);
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('button-container');
+
+                const checkButton = document.createElement('button');
+                checkButton.textContent = 'Check Answer';
+                checkButton.classList.add('check-button');
+                checkButton.onclick = () => checkAnswer(index);
+                buttonContainer.appendChild(checkButton);
+                questionBlock.appendChild(buttonContainer);
+
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('feedback');
+                questionBlock.appendChild(feedbackDiv);
+
+                quizContainer.appendChild(questionBlock);
+            });
+        }
+
+        function checkAnswer(questionIndex) {
+            const questionBlockElement = document.getElementById(`q${questionIndex}`);
+            const selectedRadioButton = questionBlockElement.querySelector('input[type="radio"]:checked');
+            if (!selectedRadioButton) {
+                alert("Please select an answer first.");
+                return;
+            }
+            const selectedOptionKey = selectedRadioButton.value;
+            const qData = quizData[questionIndex];
+            const feedbackDiv = questionBlockElement.querySelector('.feedback');
+            const correct = selectedOptionKey === qData.correctAnswer;
+
+            let feedbackHTML = '';
+            if (correct) {
+                feedbackHTML = `<span class="feedback-status">Correct!</span>`;
+                feedbackDiv.className = 'feedback correct';
+            } else {
+                feedbackHTML = `<span class="feedback-status">Incorrect. The correct answer is ${qData.correctAnswer}.</span>`;
+                feedbackDiv.className = 'feedback incorrect';
+            }
+
+            feedbackHTML += `<div class="feedback-rationale"><strong>Rationale:</strong> ${qData.rationale}</div>`;
+            feedbackHTML += `<div class="feedback-source"><strong>Source:</strong> ${qData.source}</div>`;
+
+            feedbackDiv.innerHTML = feedbackHTML;
+        }
+
+        themeToggleButton.addEventListener('click', () => {
+            if (bodyElement.classList.contains('light-theme')) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('quizTheme') || 'dark';
+            applyTheme(savedTheme);
+            loadQuiz();
+        });
+    </script>
+</body>
+</html>
